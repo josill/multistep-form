@@ -1,12 +1,10 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
-import MultiStepForm, {
-  MultiStepFormRef,
-} from "./api/components/MultiStepForm";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
+import MultiStepForm, { MultiStepFormRef } from "./components/MultiStepForm";
 
 const schema = z.object({
   personal: z.object({
