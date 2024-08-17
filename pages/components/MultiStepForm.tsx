@@ -71,6 +71,7 @@ const MultiStepForm = forwardRef<MultiStepFormRef, MultiStepFormProps>(
         setStep ? setStep(newStep) : setLocalStep(newStep);
         onStepChange && onStepChange(newStep);
       } else {
+        // handleSubmit validates the data according to the schema, meaning if it is invalid it won't reach the onSubmit function or in our case, log in the console
         methods.handleSubmit(onSubmit)();
       }
     };
