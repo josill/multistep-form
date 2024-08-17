@@ -6,11 +6,11 @@ import MultiStepForm, {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const schema = z.object({
   personal: z.object({
-    name: z.string(),
+    name: z.string().min(4),
     email: z.string().email(),
   }),
   address: z.object({
@@ -28,6 +28,7 @@ export default function Home() {
     resolver: zodResolver(schema),
   });
   const multiStepFormRef = useRef<MultiStepFormRef>(null);
+  const [step, setStep] = useState(0);
 
   const steps = [
     {
@@ -100,13 +101,15 @@ export default function Home() {
       className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
       onClick={() => multiStepFormRef.current?.handleNext()}
     >
-      Next
+      {step === 1 ? "Submit" : "Next"}
     </button>,
   ];
 
   const handleSubmit = (data: FormValues) => {
     console.log(data);
   };
+
+  console.log(step);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -118,6 +121,8 @@ export default function Home() {
           controls={controls}
           onSubmit={handleSubmit}
           ref={multiStepFormRef}
+          step={step}
+          setStep={setStep}
         />
       </div>
     </div>

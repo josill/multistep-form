@@ -22,23 +22,42 @@ interface MultiStepFormProps {
   steps: { name: string; children: ReactNode }[];
   /* The controls for moving forward and backwards */
   controls?: ReactNode;
+  /* The function to call when the step changes */
+  onStepChange?: (step: number) => void;
+  /* If you want to pass in the step from the parent, useful if you need the step state outside the child component */
+  step?: number;
+  /* If you want to pass in the setStep from the parent */
+  setStep?: (step: number) => void;
   /* The function to call when the form is submitted */
   onSubmit: (data: any) => void;
 }
 
 const MultiStepForm = forwardRef<MultiStepFormRef, MultiStepFormProps>(
-  ({ schema, methods, steps, controls, onSubmit }, ref) => {
+  (
+    { schema, methods, steps, controls, onStepChange, step, setStep, onSubmit },
+    ref
+  ) => {
     const schemaKeys: string[] = schema.keyof()._def.values;
     const numberOfFields = schemaKeys.length;
     if (numberOfFields !== steps.length)
       throw new Error("Amount of steps and fields in schema do not match");
 
-    const [currentStep, setCurrentStep] = useState(0);
+    if (
+      (step !== undefined && setStep === undefined) ||
+      (step === undefined && setStep !== undefined)
+    )
+      throw new Error("You must pass both step and setStep or neither");
+
+    const [localStep, setLocalStep] = useState(0);
+
+    const currentStep = step !== undefined ? step : localStep;
     const isLastStep = currentStep === steps.length - 1;
 
     const handleBack = () => {
       if (currentStep > 0) {
-        setCurrentStep((prevStep) => prevStep - 1);
+        const newStep = currentStep - 1;
+        setStep ? setStep(newStep) : setLocalStep(newStep);
+        onStepChange && onStepChange(newStep);
       }
     };
 
@@ -48,7 +67,9 @@ const MultiStepForm = forwardRef<MultiStepFormRef, MultiStepFormProps>(
         (i) => i.path[0] === steps[currentStep].name
       );
       if (!isLastStep && !error) {
-        setCurrentStep((prevStep) => prevStep + 1);
+        const newStep = currentStep + 1;
+        setStep ? setStep(newStep) : setLocalStep(newStep);
+        onStepChange && onStepChange(newStep);
       } else {
         methods.handleSubmit(onSubmit)();
       }
